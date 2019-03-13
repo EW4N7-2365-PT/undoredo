@@ -1,11 +1,12 @@
 from django.core.cache import cache as default_cache
 from rest_framework import status
 from rest_framework.exceptions import APIException
-from rest_framework.generics import RetrieveUpdateDestroyAPIView
+from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.response import Response
 
 
-class ListCreateUndoRedoAPIView(RetrieveUpdateDestroyAPIView):
+class RetrieveUpdateUndoRedoAPIView(RetrieveUpdateAPIView):
+
     cache = default_cache
 
     # Actions
