@@ -1,36 +1,8 @@
 from django.core.cache import cache as default_cache
 from rest_framework import status
+from rest_framework.exceptions import APIException
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
-from rest_framework.exceptions import APIException
-from reversion.models import Version
-
-
-class VersionMixin(object):
-
-    def parse_version(self, request):
-        version = request.query_params.get('version', 1)
-        try:
-            version = int(version)
-        except TypeError:
-            raise APIException('Version must be an integer')
-
-        if version <= 0:
-            raise APIException('Version must be greater than zero.')
-
-        return version
-
-    def get_object(self):
-        instance = super().get_object()
-        version_number = self.parse_version(self.request)
-        versions = Version.objects.get_for_object(instance)
-        versions_count = versions.count()
-
-        if version_number > versions_count:
-            raise APIException(f'Version {version_number} does not exist.')
-
-        version = versions[versions_count - version_number]
-        return version._object_version.object
 
 
 class ListCreateUndoRedoAPIView(RetrieveUpdateDestroyAPIView):
@@ -47,7 +19,7 @@ class ListCreateUndoRedoAPIView(RetrieveUpdateDestroyAPIView):
         if not action:
             raise APIException('Provide action')
         if action not in self._actions:
-            raise APIException(f'Provide one of {",".join(self._actions)}')
+            raise APIException(f'Wrong action choose one from {",".join(self._actions)}')
 
         return action
 
@@ -88,8 +60,7 @@ class ListCreateUndoRedoAPIView(RetrieveUpdateDestroyAPIView):
             return super().put(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
-        tmp_versions = request.query_params.get('tmp_versions')
-        if tmp_versions:
+        if 'tmp_versions' in request.query_params:
             versions = self.get_versions()
             return Response(versions)
 

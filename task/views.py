@@ -1,7 +1,8 @@
 from rest_framework.generics import ListCreateAPIView
 from .serializers import TaskSerializer
 from .models import Task
-from app.views import ListCreateUndoRedoAPIView, VersionMixin
+from app.views import ListCreateUndoRedoAPIView
+from app.mixins import VersionMixin
 from reversion.views import RevisionMixin
 
 
