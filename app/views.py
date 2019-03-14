@@ -16,7 +16,7 @@ class RetrieveUpdateUndoRedoAPIView(RetrieveUpdateAPIView):
     _actions = [COMMIT, PUSH]
 
     def get_action(self, request):
-        action = request.data.get('action', None)
+        action = request.data.pop('action', None)
         if not action:
             raise APIException('Provide action')
         if action not in self._actions:
@@ -34,7 +34,6 @@ class RetrieveUpdateUndoRedoAPIView(RetrieveUpdateAPIView):
         return self.cache.get(key, [])
 
     def push(self, request):
-        request.data.pop('action')
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         versions = self.get_versions()
